@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/HotelBookingApplication.iml" filepath="$PROJECT_DIR$/HotelBookingApplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/frontend_react.iml" filepath="$PROJECT_DIR$/frontend_react.iml" />
+    </modules>
+  </component>
+</project>
