@@ -1,0 +1,29 @@
+/* YourCustomStyles.css */
+
+.custom-navbar {
+    background-color: black !important; /* Set the background color to black */
+}
+
+.custom-logo {
+    position: absolute;
+    height: 68px;
+    width: 200px;
+    bottom: -1px;
+    left: 60px;
+}
+
+.text-white {
+    color: white ;
+}
+
+.custom-nav-link {
+    margin-right: 80px;
+    font-size: 22px;
+}
+.custom-nav-link.active {
+    color: red; /* Color for active link */
+    font-weight: bold; /* Optionally, make the active link bold */
+}
+.texte{
+    margin-left: 18%;
+}
