@@ -1,0 +1,41 @@
+/* YourCustomStyles.css */
+
+.custom-navbar {
+    background-color: black !important; /* Set the background color to black */
+}
+
+.custom-logo {
+    position: absolute;
+    height: 68px;
+    width: 200px;
+    bottom: -1px;
+    left: 60px;
+}
+
+.text-white {
+    color: white ;
+}
+
+.custom-nav-link {
+    margin-right: 80px;
+    font-size: 22px;
+    color: white ;
+}
+.custom-nav-link:hover {
+    margin-right: 80px;
+    font-size: 22px;
+    color: red;
+}
+
+.custom-nav-link:active,
+.custom-nav-link:focus,
+.custom-nav-link.active {
+    color: red !important; /* Set the desired red color */
+    background-color: transparent; /* Set background color to transparent or any other preferred value */
+}
+
+
+
+.texte{
+    margin-left: 18%;
+}
