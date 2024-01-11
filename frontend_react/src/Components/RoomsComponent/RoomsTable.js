@@ -1,57 +1,72 @@
 import React, {useEffect, useState} from 'react';
-import {Popconfirm, Space, Table} from 'antd';
+import {Form, Input, InputNumber, message, Modal, Popconfirm, Space, Switch, Table} from 'antd';
 import Button from 'react-bootstrap/Button';
 import "../ClientsComponent/Clients management.css";
-import ClientModal from "../ClientsComponent/ClientsModal";
 import RoomsModal from "./RoomsModal";
+import axios from "axios";
 
 
-function RoomsTable () {
+function RoomsTable ({ rooms,setRooms}) {
+    const [form] = Form.useForm();
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMode, setModalMode] = useState('update');
     const [selectedRoom, setSelectedRoom] = useState(null);
 
-//     useEffect(() => {
-//     // Fetch rooms data from the backend API using Axios
-//     fetchRooms().then(r => 'ERROR!');
-// }, []);
+    useEffect(() => {
+    // Fetch rooms data from the backend API using Axios
+    fetchRooms().then(r => 'ERROR!');
+}, []);
 
-    const fetchClients = async () => {
-        // try {
-        //     const response = await axios.get("http://localhost:8888/EMPLOYEE-SERVICE/employees");
-        //     const data = response.data; // Assuming the API response has the list of employees in the 'data' property
-        //     setRooms(data);
-        // } catch (error) {
-        //     console.error("Error fetching rooms:", error);
-        // }
+    const fetchRooms = async () => {
+        try {
+            const response = await axios.get("http://localhost:8081/api/room/allrooms");
+            const data = response.data; // Assuming the API response has the list of employees in the 'data' property
+            setRooms(data);
+        } catch (error) {
+            console.error("Error fetching rooms:", error);
+        }
     };
 
-    const Update = (values, isUpdate) => {
-        // Handle create or update logic here
-        console.log('Form values:', values);
-        console.log('Is Update:', isUpdate);
-
-        // After handling create/update logic, close the modal
-        setModalVisible(false);
+    const handleUpdate = async (values) => {
+        try {
+            // Make a POST request to update the client data
+            await axios.post(`http://localhost:8081/api/room/update/${selectedRoom.id}`, values);
+            message.success('Room updated successfully!');
+            // After handling create/update logic, close the modal
+            setModalVisible(false);
+            // Fetch updated clients data
+            fetchRooms();
+        } catch (error) {
+            console.error('Error updating room:', error);
+            message.error('Failed to update room. Please try again.');
+        }
     };
-    const handleUpdate = (record) => {
+
+    const showUpdateModal = (record) => {
         setModalMode('update');
         setSelectedRoom(record);
         setModalVisible(true);
+        // Set initial form values
+        form.setFieldsValue(record);
     };
 
-    const handleDelete =async (id) => {
-        // try {
-        //     // Make a DELETE request to the backend to delete the employee
-        //     await axios.delete(`http://localhost:8888/EMPLOYEE-SERVICE/employees/${id}`);
-        //     setEmployees((prevDataSource) =>
-        //         prevDataSource.filter((record) => record.key !== id)
-        //     );
-        //     message.success('Employee deleted successfully!');
-        //     console.log("Deleting employee with key:", id);
-        // } catch (error) {
-        //     console.error("Error deleting employee:", error);
-        // }
+    const handleCancel = () => {
+        form.resetFields();
+        setModalVisible(false);
+    };
+    const handleDelete = async (id) => {
+        try {
+            // Make a DELETE request to the backend to delete the client
+            await axios.delete(`http://localhost:8081/api/room/delete/${id}`);
+
+            // Update the clients state by removing the deleted client
+            setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
+
+            message.success('Room deleted successfully!');
+            console.log("Deleting room with id:", id);
+        } catch (error) {
+            console.error("Error deleting room:", error);
+        }
     };
 
 
@@ -83,7 +98,7 @@ function RoomsTable () {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle" >
-                    <Button variant="primary" onClick={() => handleUpdate(record)}>
+                    <Button variant="primary" onClick={() => showUpdateModal(record)}>
                         Update
                     </Button>
                     <Popconfirm
@@ -99,26 +114,6 @@ function RoomsTable () {
         },
     ];
 
-    const clients = [
-        {
-            key: '1',
-            roomNumber: 11,
-            bedsNumber: 2,
-            availability: true
-        },
-        {
-            key: '2',
-            roomNumber: 11,
-            bedsNumber: 2,
-            availability: false
-        },
-        {
-            key: '3',
-            roomNumber: 11,
-            bedsNumber: 2,
-            availability: false
-        },
-    ];
     const components = {
         header: {
             cell: (props) => <th style={{ background: 'black',color:"white",textAlign:"center" }}>{props.children}</th>,
@@ -127,14 +122,58 @@ function RoomsTable () {
 
     return(
         <>
-            <Table columns={columns} dataSource={clients} components={components}/>
-            <RoomsModal
-                visible={modalVisible}
-                onCancel={() => setModalVisible(false)}
-                onSubmit={Update}
-                initialValues={selectedRoom}
-                mode={modalMode}
+            <Table
+                columns={columns}
+                dataSource={rooms}
+                components={components}
+                pagination={{ pageSize: 4 }}
             />
+            <Modal
+                visible={modalVisible}
+                title="Update the Room"
+                onCancel={handleCancel}
+                onOk={() => form.submit()}
+            >
+                <Form form={form} layout="vertical" name="roomForm"  style={{ textAlign: 'center', marginTop:30 }}>
+                    <Form.Item
+                        name="roomNumber"
+                        label="Room Number"
+                        rules={[{ required: true, message: 'Please enter the room number' }]}
+                        style={{ textAlign: 'center' }}
+                    >
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item
+                        name="bedsNumber"
+                        label="Beds Number"
+                        rules={[{ required: true, message: 'Please enter the beds number' }]}
+                        style={{ textAlign: 'center' }}
+                    >
+                        <InputNumber min={1} />
+                    </Form.Item>
+                    <Form.Item
+                        name="availability"
+                        label="Availability"
+                        valuePropName="checked"
+                        initialValue={selectedRoom?.availability || true}
+                        style={{ textAlign: 'center' }}
+                    >
+                        <Switch checkedChildren={<span style={{ fontSize: '15px' }}>Available</span>}
+                                unCheckedChildren={<span style={{ fontSize: '15px' }}>Not Available</span>}
+                                style={{height:24 , width:150 }} />
+                    </Form.Item>
+                    {form.getFieldValue('availability') === false && (
+                        <Form.Item
+                            name="reservedForClient"
+                            label="Reserved for the client"
+                            rules={[{ required: true, message: 'Please enter the client name' }]}
+                            style={{ textAlign: 'center' }}
+                        >
+                            <Input />
+                        </Form.Item>
+                    )}
+                </Form>
+            </Modal>
         </>
     );
 }

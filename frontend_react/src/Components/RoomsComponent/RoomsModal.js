@@ -53,13 +53,23 @@ const RoomModal = ({ visible, onCancel, onSubmit, initialValues }) => {
                     name="availability"
                     label="Availability"
                     valuePropName="checked"
-                    initialValue={initialValues?.availability || false}
+                    initialValue={initialValues?.availability || true}
                     style={{ textAlign: 'center' }}
                 >
                     <Switch checkedChildren={<span style={{ fontSize: '15px' }}>Available</span>}
                             unCheckedChildren={<span style={{ fontSize: '15px' }}>Not Available</span>}
                             style={{height:24 , width:150 }} />
                 </Form.Item>
+                {form.getFieldValue('availability') === false && (
+                    <Form.Item
+                        name="reservedForClient"
+                        label="Reserved for the client"
+                        rules={[{ required: true, message: 'Please enter the client name' }]}
+                        style={{ textAlign: 'center' }}
+                    >
+                        <Input />
+                    </Form.Item>
+                )}
             </Form>
         </Modal>
     );

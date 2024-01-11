@@ -1,43 +1,43 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import MenuComponent from "../MenuComponent/MenuComponent";
 import "./Clients management.css";
-import {Button, Form, message} from "antd";
+import { Button, Form, Input, message, Modal } from "antd";
 import ClientsTable from "./ClientsTable";
-import ClientModal from "./ClientsModal";
-import {PlusOutlined, TeamOutlined} from "@ant-design/icons";
+import { PlusOutlined, TeamOutlined } from "@ant-design/icons";
 import axios from "axios";
 
-function ClientsComponent(){
+function ClientsComponent() {
     const [form] = Form.useForm();
     const [modalVisible, setModalVisible] = useState(false);
-    const [modalMode, setModalMode] = useState('create'); // 'create' or 'update'
-    const [selectedClient, setSelectedClient] = useState(null);
+    const [modalMode, setModalMode] = useState('create');
+    const [clients, setClients] = useState([]);
 
     const addClient = async (clientData) => {
-        // Make a POST request to add a new employee
-        axios.post('http://localhost:8080/api/client/add',clientData)
-            .then((response) => {
-                message.success('Employee added successfully!');
-                form.resetFields();
-                handleCancel();
-            })
-            .catch((error) => {
-                message.error('Failed to add client. Please try again.');
-                console.error('Error adding client:', error);
-            });
+        try {
+            const response = await axios.post('http://localhost:8080/api/client/add', clientData);
+            const newClient = response.data;
+
+            // Update the clients state with the new client
+            setClients((prevClients) => [...prevClients, newClient]);
+
+            // Close the modal and reset the form
+            message.success('Client added successfully!');
+            form.resetFields();
+            handleCancel();
+        } catch (error) {
+            message.error('Failed to add client. Please try again.');
+            console.error('Error adding client:', error);
+        }
     };
+
+    const showPopUp = () => {
+        setModalVisible(true);
+    }
+
     const handleCreate = () => {
-        setModalMode('create');
-        setSelectedClient(null);
         form.validateFields().then((clientData) => {
             addClient(clientData);
         });
-    }
-    const Create = (values) => {
-        // Handle create or update logic here based on modalMode
-        console.log('Form values:', values);
-        // You can make API calls, update state, etc.
-        setModalVisible(false);
     };
 
     const handleCancel = () => {
@@ -47,24 +47,47 @@ function ClientsComponent(){
 
     return (
         <div className="component">
-            <MenuComponent/>
+            <MenuComponent />
             <div>
                 <h1 className="ttt">Clients Management <TeamOutlined /></h1>
-                <Button variant="dark" className="client-room-btn" onClick={handleCreate}>
-                    <PlusOutlined style={{position:"absolute",top:13,left:15}}/> Add Client
+                <Button variant="dark" className="client-room-btn" onClick={showPopUp}>
+                    <PlusOutlined style={{ position: "absolute", top: 13, left: 15 }} /> Add Client
                 </Button>
             </div>
-            <div style={{marginTop:100 , width:980}} className="sd">
-                <ClientsTable/>
+            <div style={{ marginTop: 100, width: 980 }} className="sd">
+                <ClientsTable clients={clients} setClients={setClients} />
             </div>
 
-            <ClientModal
+            <Modal
                 visible={modalVisible}
+                title="Create a Client"
                 onCancel={handleCancel}
-                onCreate={Create}
-                initialValues={selectedClient}
-                mode={modalMode}
-            />
+                onOk={handleCreate}
+            >
+                <Form form={form} layout="vertical" name="clientForm">
+                    <Form.Item
+                        name="fullName"
+                        label="Full Name"
+                        rules={[{ required: true, message: 'Please enter the full name' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="cin"
+                        label="CIN"
+                        rules={[{ required: true, message: 'Please enter the CIN' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item
+                        name="phoneNumber"
+                        label="Phone Number"
+                        rules={[{ required: true, message: 'Please enter the phone number' }]}
+                    >
+                        <Input />
+                    </Form.Item>
+                </Form>
+            </Modal>
 
         </div>
     );
