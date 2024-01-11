@@ -15,4 +15,8 @@ public interface ClientService {
     void deleteClient(Long id);
 
     ClientResponseWithRooms getOneClientWithRooms(Long id);
+
+    List<Long> getClientIds();
+
+    List<String> getClientsNames();
 }

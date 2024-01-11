@@ -1,6 +1,5 @@
 package org.sid.msroom.services;
 
-import ch.qos.logback.core.net.server.Client;
 import jakarta.persistence.EntityNotFoundException;
 import org.sid.msroom.entities.Room;
 import org.sid.msroom.mappers.RoomMapper;
@@ -27,6 +26,11 @@ public class RoomServiceImpl implements RoomService {
     @Autowired
     private WebClient webClient;
 
+    @Autowired
+    public RoomServiceImpl(RoomRepo roomRepo, WebClient webClient) {
+        this.roomRepo = roomRepo;
+        this.webClient = webClient;
+    }
     @Override
     public RoomResponse addRoom(RoomRequest roomRequest) {
         Room room = roomMapper.fromRoomRequest(roomRequest);
@@ -100,11 +104,41 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<RoomResponse> getRoomsOfClient(Long id) {
-        List<RoomResponse> repRooms = new ArrayList<>();
+        List<RoomResponse> roomResponses = new ArrayList<>();
         List<Room> rooms = roomRepo.findByClientId(id);
         for (Room r:rooms) {
-            repRooms.add(new RoomResponse(r));
+            roomResponses.add(new RoomResponse(r));
         }
-        return repRooms;
+        return roomResponses;
     }
+
+    @Override
+    public List<RoomResponse> getRoomAndClient() {
+        List<RoomResponse> roomResponses = new ArrayList<>();
+        List<Room> rooms = roomRepo.findAll();
+
+        for (Room room : rooms) {
+            String clientFullName = webClient.get()
+                    .uri("http://localhost:8080/api/client/" + room.getClientId())
+                    .retrieve()
+                    .bodyToMono(ClientResponse.class)
+                    .block()
+                    .getFullName();
+
+            RoomResponse roomResponse = RoomResponse.builder()
+                    .roomId(room.getRoomId())
+                    .roomNumber(room.getRoomNumber())
+                    .bedsNumber(room.getBedsNumber())
+                    .availability(room.isAvailability())
+                    .clientFullName(clientFullName)
+                    .build();
+
+            roomResponses.add(roomResponse);
+        }
+
+        return roomResponses;
+    }
+
+
+
 }

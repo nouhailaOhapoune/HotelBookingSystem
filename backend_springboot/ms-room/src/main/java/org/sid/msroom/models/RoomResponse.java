@@ -1,6 +1,5 @@
 package org.sid.msroom.models;
 
-import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +17,7 @@ public class RoomResponse {
     private int bedsNumber;
     private boolean availability;
     private ClientResponse clientResponse;
-
+    private String clientFullName;
     public RoomResponse(Room room) {
         this.roomId = room.getRoomId();
         this.bedsNumber = room.getBedsNumber();
@@ -33,4 +32,14 @@ public class RoomResponse {
         this.availability = room.isAvailability();
         this.clientResponse = clientResponse;
     }
+
+    public RoomResponse(Room room, String fullName) {
+        this.roomId = room.getRoomId();
+        this.bedsNumber = room.getBedsNumber();
+        this.roomNumber = room.getRoomNumber();
+        this.availability = room.isAvailability();
+        this.clientResponse = new ClientResponse();
+        this.clientResponse.setFullName(fullName);
+    }
+
 }

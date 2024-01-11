@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 
 @Service
-public class ClientServiceImpl implements ClientService{
+public class ClientServiceImpl implements ClientService {
     @Autowired
     ClientRepo clientRepo;
 
@@ -114,4 +114,29 @@ public class ClientServiceImpl implements ClientService{
             throw new EntityNotFoundException("The client with id: "  +id+ " is not Found");
         }
     }
+
+    @Override
+    public List<Long> getClientIds() {
+        List<Long> clientIds = new ArrayList<>();
+        List<Client> clients = clientRepo.findAll();
+
+        for (Client c : clients) {
+            clientIds.add(c.getId());
+        }
+
+        return clientIds;
+    }
+
+    @Override
+    public List<String> getClientsNames() {
+        List<String> clientsNames = new ArrayList<>();
+        List<Client> clients = clientRepo.findAll();
+
+        for (Client c : clients) {
+            clientsNames.add(c.getFullName());
+        }
+
+        return clientsNames;
+    }
+
 }

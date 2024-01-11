@@ -2,15 +2,16 @@ import React, {useEffect, useState} from 'react';
 import {Form, Input, InputNumber, message, Modal, Popconfirm, Space, Switch, Table} from 'antd';
 import Button from 'react-bootstrap/Button';
 import "../ClientsComponent/Clients management.css";
-import RoomsModal from "./RoomsModal";
 import axios from "axios";
 
 
-function RoomsTable ({ rooms,setRooms}) {
+function RoomsTable () {
+    const [rooms, setRooms] = useState([]);
     const [form] = Form.useForm();
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMode, setModalMode] = useState('update');
     const [selectedRoom, setSelectedRoom] = useState(null);
+    const [isAvailable, setIsAvailable] = useState(null);
 
     useEffect(() => {
     // Fetch rooms data from the backend API using Axios
@@ -30,14 +31,14 @@ function RoomsTable ({ rooms,setRooms}) {
     const handleUpdate = async (values) => {
         try {
             // Make a POST request to update the client data
-            await axios.post(`http://localhost:8081/api/room/update/${selectedRoom.id}`, values);
+            await axios.post(`http://localhost:8081/api/room/update/${selectedRoom.roomId}`, values);
             message.success('Room updated successfully!');
             // After handling create/update logic, close the modal
             setModalVisible(false);
             // Fetch updated clients data
             fetchRooms();
         } catch (error) {
-            console.error('Error updating room:', error);
+            console.error('Error updating room:', selectedRoom.id);
             message.error('Failed to update room. Please try again.');
         }
     };
@@ -55,20 +56,22 @@ function RoomsTable ({ rooms,setRooms}) {
         setModalVisible(false);
     };
     const handleDelete = async (id) => {
+
         try {
-            // Make a DELETE request to the backend to delete the client
+            // Make a DELETE request to the backend to delete the room
             await axios.delete(`http://localhost:8081/api/room/delete/${id}`);
 
-            // Update the clients state by removing the deleted client
+            // Update the rooms state by removing the deleted room
             setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
 
             message.success('Room deleted successfully!');
             console.log("Deleting room with id:", id);
         } catch (error) {
             console.error("Error deleting room:", error);
+            // Log the specific error response if available
+            console.error("Error response:", error.response);
         }
     };
-
 
 
     const columns = [
@@ -95,6 +98,7 @@ function RoomsTable ({ rooms,setRooms}) {
 
         {
             title: 'Action',
+            dataIndex: 'action',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle" >
@@ -103,16 +107,20 @@ function RoomsTable ({ rooms,setRooms}) {
                     </Button>
                     <Popconfirm
                         title={`Are you sure you want to delete the ${record.roomNumber} room?`}
-                        onConfirm={() => handleDelete(record.id)}
+                        onConfirm={() => handleDelete(record.roomId)}
                         okText="Yes"
                         cancelText="No"
                     >
-                        <Button  variant="danger">Delete</Button>
+                        <Button variant="danger">Delete</Button>
                     </Popconfirm>
                 </Space>
             ),
         },
     ];
+
+    const handleSwitchChange = (isAvailable) => {
+        setIsAvailable(isAvailable);
+    };
 
     const components = {
         header: {
@@ -134,7 +142,7 @@ function RoomsTable ({ rooms,setRooms}) {
                 onCancel={handleCancel}
                 onOk={() => form.submit()}
             >
-                <Form form={form} layout="vertical" name="roomForm"  style={{ textAlign: 'center', marginTop:30 }}>
+                <Form form={form} layout="vertical" name="roomForm"  style={{ textAlign: 'center', marginTop:30 }} onFinish={handleUpdate}>
                     <Form.Item
                         name="roomNumber"
                         label="Room Number"
@@ -158,11 +166,15 @@ function RoomsTable ({ rooms,setRooms}) {
                         initialValue={selectedRoom?.availability || true}
                         style={{ textAlign: 'center' }}
                     >
-                        <Switch checkedChildren={<span style={{ fontSize: '15px' }}>Available</span>}
-                                unCheckedChildren={<span style={{ fontSize: '15px' }}>Not Available</span>}
-                                style={{height:24 , width:150 }} />
+                        <Switch
+                            checked={isAvailable}
+                            checkedChildren={<span style={{ fontSize: '15px' }}>Available</span>}
+                            unCheckedChildren={<span style={{ fontSize: '15px' }}>Not Available</span>}
+                            onChange={handleSwitchChange}
+                            style={{ height: 24, width: 150 }}
+                        />
                     </Form.Item>
-                    {form.getFieldValue('availability') === false && (
+                    {!isAvailable && (
                         <Form.Item
                             name="reservedForClient"
                             label="Reserved for the client"

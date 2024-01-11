@@ -45,4 +45,9 @@ public class RoomController {
     public List<RoomResponse> roomsOfClientWeb(@PathVariable("id") Long id){
         return roomService.getRoomsOfClient(id);
     }
+
+    @GetMapping("/rooms/client")
+    public List<RoomResponse> getRoomAndClientWeb(){
+        return roomService.getRoomAndClient();
+    }
 }

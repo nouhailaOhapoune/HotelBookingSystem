@@ -1,10 +1,23 @@
-import React, {useEffect, useState} from 'react';
-import {Popconfirm, Space, Table} from 'antd';
-import "../ClientsComponent/Clients management.css";
+import React, { useEffect, useState } from 'react';
+import { Table } from 'antd';
+import apiRoom from "../../Connexion/AxiosRoom";
 
+function BookingTable() {
+    const [bookings, setBookings] = useState([]);
 
-function BookingTable () {
+    useEffect(() => {
+        const fetchBookings = async () => {
+            try {
+                const response = await apiRoom.get('/rooms/client');
+                console.log(response.data);
+                setBookings(response.data);
+            } catch (error) {
+                console.error("Error fetching booking data:", error);
+            }
+        };
 
+        fetchBookings();
+    }, []);
 
     const columns = [
         {
@@ -13,42 +26,30 @@ function BookingTable () {
             key: 'roomNumber',
         },
         {
-            title: 'Full name of the client',
+            title: 'Client full name',
             dataIndex: 'fullName',
             key: 'fullName',
         },
     ];
 
-    const booking = [
-        {
-            key: '1',
-            roomNumber: 11,
-            fullName: 'John Brown'
 
-        },
-        {
-            key: '2',
-            roomNumber: 11,
-            fullName: 'Jim Green'
-
-        },
-        {
-            key: '3',
-            roomNumber: 11,
-            fullName: 'Jim Green'
-        },
-    ];
+    const formattedBookings = bookings.map((booking, index) => ({
+        key: index,
+        roomNumber: booking.roomNumber,
+        fullName: booking.clientFullName || 'N/A',
+    }));
 
     const components = {
         header: {
-            cell: (props) => <th style={{ background: 'black',color:"white",textAlign:"center" }}>{props.children}</th>,
+            cell: (props) => <th style={{ background: 'black', color: "white", textAlign: "center" }}>{props.children}</th>,
         },
     };
 
-    return(
+    return (
         <>
-            <Table columns={columns} dataSource={booking} components={components}/>
+            <Table columns={columns} dataSource={formattedBookings} components={components} pagination={{ pageSize: 4 }}/>
         </>
     );
 }
+
 export default BookingTable;

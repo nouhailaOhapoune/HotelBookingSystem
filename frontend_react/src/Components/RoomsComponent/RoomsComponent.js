@@ -3,7 +3,6 @@ import MenuComponent from "../MenuComponent/MenuComponent";
 import "../ClientsComponent/Clients management.css";
 import {Button, Form, Input, InputNumber, message, Modal, Switch} from "antd";
 import RoomsTable from "./RoomsTable";
-import RoomsModal from "./RoomsModal";
 import {HomeOutlined, PlusOutlined} from "@ant-design/icons";
 import axios from "axios";
 
@@ -12,6 +11,7 @@ function RoomsComponent() {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMode, setModalMode] = useState('create'); // 'create' or 'update'
     const [rooms, setRooms] = useState([]);
+    const [isAvailable, setIsAvailable] = useState(true);
 
     const addRoom = async (roomData) => {
         try {
@@ -45,6 +45,10 @@ function RoomsComponent() {
         form.resetFields();
         setModalVisible(false);
     };
+    const handleSwitchChange = (isAvailable) => {
+        setIsAvailable(isAvailable);
+    };
+
 
 
     return (
@@ -90,11 +94,15 @@ function RoomsComponent() {
                         initialValue={true}
                         style={{ textAlign: 'center' }}
                     >
-                        <Switch checkedChildren={<span style={{ fontSize: '15px' }}>Available</span>}
-                                unCheckedChildren={<span style={{ fontSize: '15px' }}>Not Available</span>}
-                                style={{height:24 , width:150 }} />
+                        <Switch
+                            checked={isAvailable}
+                            checkedChildren={<span style={{ fontSize: '15px' }}>Available</span>}
+                            unCheckedChildren={<span style={{ fontSize: '15px' }}>Not Available</span>}
+                            onChange={handleSwitchChange}
+                            style={{ height: 24, width: 150 }}
+                        />
                     </Form.Item>
-                    {form.getFieldValue('availability') === false && (
+                    {!isAvailable && (
                         <Form.Item
                             name="reservedForClient"
                             label="Reserved for the client"
