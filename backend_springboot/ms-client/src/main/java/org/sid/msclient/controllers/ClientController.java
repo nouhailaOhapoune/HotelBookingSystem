@@ -46,5 +46,14 @@ public class ClientController {
         return clientService.getOneClientWithRooms(id);
     }
 
+    @GetMapping("/ids")
+    public List<Long> getClientsIdsWeb(){
+        return clientService.getClientIds();
+    }
+
+    @GetMapping("/names")
+    public List<String> getClientsNamesWeb(){
+        return clientService.getClientsNames();
+    }
 
 }

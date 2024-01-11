@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
@@ -23,20 +24,26 @@ public class MsRoomApplication {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(RoomRepo roomRepo){
+    CommandLineRunner commandLineRunner(RoomRepo roomRepo, WebClient webClient){
         return args -> {
             Set<Integer> usedRoomNumbers = new HashSet<>();
+            Random random = new Random();
+
+            List<Long> clientIds = webClient.get()
+                    .uri("http://localhost:8080/api/client/ids")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<List<Long>>() {})
+                    .block();
 
             for(int i=1;i<=15; i++){
-                Random random = new Random();
                 int indexRoomNumber = random.nextInt(1, 30);
                 do {
-                    indexRoomNumber = random.nextInt(1, 30);
+                    indexRoomNumber = random.nextInt(1, 26);
                 } while (usedRoomNumbers.contains(indexRoomNumber));
                 usedRoomNumbers.add(indexRoomNumber);
 
                 int indexBedsNumber = random.nextInt(1, 4);
-                Long indexClientId = (long) random.nextInt(1, 15);
+                Long indexClientId = clientIds.get(random.nextInt(clientIds.size()));
                 boolean isAvailable = random.nextBoolean();
 
                 Room room = Room.builder()
@@ -47,7 +54,7 @@ public class MsRoomApplication {
                         .build();
                 roomRepo.save(room);
             }
-
         };
     }
+
 }
