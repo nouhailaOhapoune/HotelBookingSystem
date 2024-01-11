@@ -19,11 +19,23 @@
 .custom-nav-link {
     margin-right: 80px;
     font-size: 22px;
+    color: white ;
 }
+.custom-nav-link:hover {
+    margin-right: 80px;
+    font-size: 22px;
+    color: red;
+}
+
+.custom-nav-link:active,
+.custom-nav-link:focus,
 .custom-nav-link.active {
-    color: red; /* Color for active link */
-    font-weight: bold; /* Optionally, make the active link bold */
+    color: red !important; /* Set the desired red color */
+    background-color: transparent; /* Set background color to transparent or any other preferred value */
 }
+
+
+
 .texte{
     margin-left: 18%;
 }
