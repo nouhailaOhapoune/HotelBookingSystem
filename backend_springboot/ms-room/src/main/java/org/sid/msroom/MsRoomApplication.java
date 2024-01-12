@@ -30,7 +30,7 @@ public class MsRoomApplication {
             Random random = new Random();
 
             List<Long> clientIds = webClient.get()
-                    .uri("http://localhost:8080/api/client/ids")
+                    .uri("http://springboot-msclient-container:8080/api/client/ids")
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<List<Long>>() {})
                     .block();

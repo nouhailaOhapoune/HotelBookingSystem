@@ -5,8 +5,11 @@ import org.sid.msroom.models.RoomRequest;
 import org.sid.msroom.models.RoomResponse;
 import org.sid.msroom.services.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @CrossOrigin
@@ -47,7 +50,8 @@ public class RoomController {
     }
 
     @GetMapping("/rooms/client")
-    public List<RoomResponse> getRoomAndClientWeb(){
-        return roomService.getRoomAndClient();
+    public ResponseEntity<List<RoomResponse>> getRoomAndClientWeb() {
+        List<RoomResponse> roomAndClientList = roomService.getRoomAndClient();
+        return new ResponseEntity<>(roomAndClientList, HttpStatus.OK);
     }
 }

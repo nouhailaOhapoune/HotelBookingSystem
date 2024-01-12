@@ -10,8 +10,10 @@ import org.sid.msroom.repositories.RoomRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,25 +117,41 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public List<RoomResponse> getRoomAndClient() {
         List<RoomResponse> roomResponses = new ArrayList<>();
-        List<Room> rooms = roomRepo.findAll();
 
-        for (Room room : rooms) {
-            String clientFullName = webClient.get()
-                    .uri("http://localhost:8080/api/client/" + room.getClientId())
-                    .retrieve()
-                    .bodyToMono(ClientResponse.class)
-                    .block()
-                    .getFullName();
+        try {
+            List<Room> rooms = roomRepo.findAll();
 
-            RoomResponse roomResponse = RoomResponse.builder()
-                    .roomId(room.getRoomId())
-                    .roomNumber(room.getRoomNumber())
-                    .bedsNumber(room.getBedsNumber())
-                    .availability(room.isAvailability())
-                    .clientFullName(clientFullName)
-                    .build();
+            for (Room room : rooms) {
+                String clientFullName = null;
+                try {
+                    ClientResponse clientResponse = webClient.get()
+                            .uri("http://springboot-msclient-container:8080/api/client/" + room.getClientId())
+                            .retrieve()
+                            .bodyToMono(ClientResponse.class)
+                            .block();
 
-            roomResponses.add(roomResponse);
+
+                    if (clientResponse != null && clientResponse.getFullName() != null) {
+                        clientFullName = clientResponse.getFullName();
+
+                        RoomResponse roomResponse = RoomResponse.builder()
+                                .roomId(room.getRoomId())
+                                .roomNumber(room.getRoomNumber())
+                                .bedsNumber(room.getBedsNumber())
+                                .availability(room.isAvailability())
+                                .clientFullName(clientFullName)
+                                .build();
+
+                        roomResponses.add(roomResponse);
+                    }
+                } catch (WebClientResponseException.NotFound ex) {
+                    ex.printStackTrace();
+                    clientFullName = "Client not found";
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
 
         return roomResponses;

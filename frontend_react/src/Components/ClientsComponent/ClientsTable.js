@@ -17,7 +17,7 @@ function ClientsTable({ clients, setClients }) {
 
     const fetchClients = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/api/client/allclients");
+            const response = await axios.get("http://localhost:8090/api/client/allclients");
             const data = response.data; // Assuming the API response has the list of clients in the 'data' property
             setClients(data);
         } catch (error) {
@@ -28,7 +28,7 @@ function ClientsTable({ clients, setClients }) {
     const handleUpdate = async (values) => {
         try {
             // Make a POST request to update the client data
-            await axios.post(`http://localhost:8080/api/client/update/${selectedClient.id}`, values);
+            await axios.post(`http://localhost:8090/api/client/update/${selectedClient.id}`, values);
             message.success('Client updated successfully!');
             // After handling create/update logic, close the modal
             setModalVisible(false);
@@ -57,7 +57,7 @@ function ClientsTable({ clients, setClients }) {
     const handleDelete = async (id) => {
         try {
             // Make a DELETE request to the backend to delete the client
-            await axios.delete(`http://localhost:8080/api/client/delete/${id}`);
+            await axios.delete(`http://localhost:8090/api/client/delete/${id}`);
 
             // Update the clients state by removing the deleted client
             setClients((prevClients) => prevClients.filter((client) => client.id !== id));

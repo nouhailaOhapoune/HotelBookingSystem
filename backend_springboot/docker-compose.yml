@@ -1,0 +1,79 @@
+version: '3.9'
+services:
+
+  springboot-ms-room:
+    container_name: springboot-msroom-container
+    build:
+      context: ./ms-room
+      dockerfile: Dockerfile
+    ports:
+      - '8091:8081'
+    depends_on:
+      - mysql_mundia
+      - springboot-ms-client
+    environment:
+      - spring.jpa.hibernate.ddl-auto=create
+      - spring.datasource.url=jdbc:mysql://mysql-mundia-container:3306/bookingdb
+      - spring.datasource.username=root
+      - spring.datasource.password=1234
+      - spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+      #- server.port=8081
+    networks:
+      mundianet:
+      #- ipv4_address: 192.168.70.24
+
+  springboot-ms-client:
+    container_name: springboot-msclient-container
+    build:
+      context: ./ms-client
+      dockerfile: Dockerfile
+    ports:
+      - '8090:8080'
+    depends_on:
+      - mysql_mundia
+    environment:
+      - spring.jpa.hibernate.ddl-auto=create
+      - spring.datasource.url=jdbc:mysql://mysql-mundia-container:3306/bookingdb
+      - spring.datasource.username=root
+      - spring.datasource.password=1234
+      - spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+      #- server.port=8080
+    networks:
+      mundianet:
+      #- ipv4_address: 192.168.70.23
+
+  #____________________________configuration du service mysql
+  mysql_mundia:
+    container_name: mysql-mundia-container
+    image: mysql:latest
+    restart: unless-stopped
+    volumes:
+      - "./db-data:/var/lib/mysql"
+    ports:
+      - '3307:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=bookingdb
+    networks:
+      mundianet:
+      #- ipv4_address: 192.168.70.2
+
+  #____________________________configuration du service phphmyadmin
+  php_myadmin_mundia:
+    container_name: phpmyadmin-mundia
+    depends_on:
+      - mysql_mundia
+    image: phpmyadmin/phpmyadmin
+    restart: no
+    ports:
+      - '7080:80'
+    environment:
+      - PMA_HOST=mysql-mundia-container
+      - MYSQL_ROOT_PASSWORD=1234
+    networks:
+      mundianet:
+      #- ipv4_address: 192.168.70.5
+
+#__________________réseau
+networks:
+  mundianet:

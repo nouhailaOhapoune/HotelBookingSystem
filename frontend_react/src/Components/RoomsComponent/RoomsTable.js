@@ -11,7 +11,7 @@ function RoomsTable () {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMode, setModalMode] = useState('update');
     const [selectedRoom, setSelectedRoom] = useState(null);
-    const [isAvailable, setIsAvailable] = useState(null);
+    const [isAvailable, setIsAvailable] = useState(true);
 
     useEffect(() => {
     // Fetch rooms data from the backend API using Axios
@@ -20,7 +20,7 @@ function RoomsTable () {
 
     const fetchRooms = async () => {
         try {
-            const response = await axios.get("http://localhost:8081/api/room/allrooms");
+            const response = await axios.get("http://localhost:8091/api/room/allrooms");
             const data = response.data; // Assuming the API response has the list of employees in the 'data' property
             setRooms(data);
         } catch (error) {
@@ -31,14 +31,14 @@ function RoomsTable () {
     const handleUpdate = async (values) => {
         try {
             // Make a POST request to update the client data
-            await axios.post(`http://localhost:8081/api/room/update/${selectedRoom.roomId}`, values);
+            await axios.post(`http://localhost:8091/api/room/update/${selectedRoom.roomId}`, values);
             message.success('Room updated successfully!');
             // After handling create/update logic, close the modal
             setModalVisible(false);
             // Fetch updated clients data
             fetchRooms();
         } catch (error) {
-            console.error('Error updating room:', selectedRoom.id);
+            console.error('Error updating room:', selectedRoom.roomId);
             message.error('Failed to update room. Please try again.');
         }
     };
@@ -55,17 +55,17 @@ function RoomsTable () {
         form.resetFields();
         setModalVisible(false);
     };
-    const handleDelete = async (id) => {
+    const handleDelete = async (roomId) => {
 
         try {
             // Make a DELETE request to the backend to delete the room
-            await axios.delete(`http://localhost:8081/api/room/delete/${id}`);
+            await axios.delete(`http://localhost:8091/api/room/delete/${roomId}`);
 
             // Update the rooms state by removing the deleted room
-            setRooms((prevRooms) => prevRooms.filter((room) => room.id !== id));
+            setRooms((prevRooms) => prevRooms.filter((room) => room.roomId !== roomId));
 
             message.success('Room deleted successfully!');
-            console.log("Deleting room with id:", id);
+            console.log("Deleting room with id:", roomId);
         } catch (error) {
             console.error("Error deleting room:", error);
             // Log the specific error response if available
@@ -81,7 +81,7 @@ function RoomsTable () {
             key: 'roomNumber',
         },
         {
-            title: 'number of beds',
+            title: 'Number of beds',
             dataIndex: 'bedsNumber',
             key: 'bedsNumber',
         },

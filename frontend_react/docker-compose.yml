@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  app:
+    container_name: react-nginx-container-booking
+    image: react-nginx-booking
+    build:
+      context: ./
+    ports:
+      - 4000:80

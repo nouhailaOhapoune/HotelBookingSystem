@@ -14,7 +14,7 @@ function ClientsComponent() {
 
     const addClient = async (clientData) => {
         try {
-            const response = await axios.post('http://localhost:8080/api/client/add', clientData);
+            const response = await axios.post('http://localhost:8090/api/client/add', clientData);
             const newClient = response.data;
 
             // Update the clients state with the new client

@@ -101,7 +101,7 @@ public class ClientServiceImpl implements ClientService {
         Optional<Client> client = clientRepo.findById(id);
         if(client.isPresent()){
             Mono<RoomResponse[]> roomResponsesMono = webClient.get()
-                    .uri("http://localhost:8081/api/room/rooms/client/"+id)
+                    .uri("http://springboot-ms-room:8081/api/room/rooms/client/"+id)
                     .retrieve()
                     .bodyToMono(RoomResponse[].class);
 

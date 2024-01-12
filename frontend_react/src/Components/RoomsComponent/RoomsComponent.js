@@ -9,13 +9,13 @@ import axios from "axios";
 function RoomsComponent() {
     const [form] = Form.useForm();
     const [modalVisible, setModalVisible] = useState(false);
-    const [modalMode, setModalMode] = useState('create'); // 'create' or 'update'
+    const [modalMode, setModalMode] = useState('create');
     const [rooms, setRooms] = useState([]);
     const [isAvailable, setIsAvailable] = useState(true);
 
     const addRoom = async (roomData) => {
         try {
-            const response = await axios.post('http://localhost:8081/api/room/add', roomData);
+            const response = await axios.post('http://localhost:8091/api/room/add', roomData);
             const newRoom = response.data;
 
             // Update the clients state with the new client
